@@ -1,0 +1,62 @@
+options:
+  deathmessage: "&cYou died to SCP-002"
+
+command /test:
+  trigger:
+    if block at player is air:
+      add location of player to {002furniturelist::*}
+      set {002furnituredel.%location of player%} to 30
+      set block at player to dirt
+
+on region enter:
+  if player's gamemode isn't creative or spectator:
+    if event-region contains "scp-002":
+      apply potion of confusion 1 without particles to player for 40 seconds 
+
+
+every 1 seconds:
+  loop {002furniturelist::*}:
+    if {002furnituredel.%loop-value%} isn't 0:
+      remove 1 from {002furnituredel.%loop-value%}
+    else:
+      set block at loop-value to air
+      remove loop-value from {002furniturelist::*}
+      clear {002furnituredel.%loop-value%}
+  loop all players:
+    if "%region at loop-player%" contains "scp-002":
+      damage loop-player by 1
+
+on death of player:
+  if "%region at victim's location%" contains "scp-002":
+    if block at victim's location is air:
+      send {@deathmessage} to victim
+      set block at victim's location to random element out of {002furniture::*}
+      add location of victim to {002furniturelist::*}
+      set {002furnituredel.%location of victim%} to 30
+
+on command "/scpedit 002":
+  if player has permission "scpedit":
+    if arg-2 is "addfurniture":
+      add tool of player to {002furniture::*}
+      send "&8[&cSCP Archive &4| &cSCP-002&8] &7Added %tool of player% to list of furniture!"
+    if arg-2 is "removefurniture":
+      remove tool of player from {002furniture::*}
+      send "&8[&cSCP Archive &4 | &cSCP-002&8] &7Removed %tool of player% from the list of furniture!"
+    if arg-2 is "clearfurniture":
+      send "&8[&cSCP Archive &4| &cSCP-002&8] &7Removed all furniture from the list!"
+      clear {002furniture::*}
+
+on tab complete of "/scpedit":
+  if tab arg-1 = "002":
+    set tab completions for position 2 to "setdeathmessage", "addfurniture", "clearfurniture" and "removefurniture"
+
+on load:
+  add "002" to {scpeditlist::*}
+
+on unload:
+  remove "002" from {scpeditlist::*}
+
+on join:
+    wait 10 tick
+    loop all players:
+        make loop-player see block at location(0, 10, 0) as stone
