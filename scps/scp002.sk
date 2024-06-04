@@ -1,3 +1,5 @@
+# Create a region called scp-002 and use /scpedit 002 to add blocks as furniture!"
+
 options:
   deathmessage: "&cYou died to SCP-002"
 
