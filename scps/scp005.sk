@@ -1,0 +1,19 @@
+on tab complete of "/scpedit":
+  if tab arg-1 = "005":
+    set tab completions for position 2 to "setitem" and "help"
+
+on command "/scpedit 005":
+  if player has permission "scpedit":
+    if arg-2 is "setitem":
+      set {scp005} to tool of player
+      send "&8[&cSCP Archive &4| &cSCP-005&8] &7Set the item you holding to SCP-005!"
+    if arg-2 is "help":
+      send "&8-----------------------------------------------"
+      send "&7Just do &c/scpedit 005 setitem &7while holding what you want to be the key"
+      send "&8-----------------------------------------------"
+
+on load:
+  add "005" to {scpeditlist::*}
+
+on unload:
+  remove "005" from {scpeditlist::*}

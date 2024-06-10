@@ -1,0 +1,54 @@
+on tab complete of "/scpedit":
+  if tab arg-1 = "006":
+    set tab completions for position 2 to "setbottle", "cooldown" and "help"
+
+on command "/scpedit 006":
+  if player has permission "scpedit":
+    if arg-2 is "setbottle":
+      set {006bottle} to tool of player
+      send "&8[&cSCP Archive &4| &cSCP-006&8] &7Set the item you holding to SCP-006 Bottle!"
+    if arg-2 is "cooldown":
+      set {006cooldownmax} to arg-3 parsed as number
+      send "&8[&cSCP Archive &4| &cSCP-006&8] &7Set cooldown to get SCP-006 to %arg-3% seconds!"
+    if arg-2 is "help":
+      send "&8-----------------------------------------------"
+      send "&7First setup a region called ""scp-006"""
+      send "&7Then do &c/scpedit 006 setbottle &7while holding the item you want to be the bottle"
+      send "&7Then do &c/scpedit 006 cooldown (number) &7to set the cooldown"
+      send "&8-----------------------------------------------"
+
+on load:
+  add "006" to {scpeditlist::*}
+
+on unload:
+  remove "006" from {scpeditlist::*}
+
+
+on right click with glass bottle:
+  if target block is water:
+    if "%region at event-block%" contains "scp-006":
+      if {006cooldown.%player's uuid%} is above 0:
+        send action bar "&cYou are on cooldown!" to player
+      else if {006cooldown.%player's uuid%} is below 1:
+        remove 1 of tool from tool
+        give player {006bottle}
+        set {006cooldown.%player's uuid%} to {006cooldownmax}
+      else if {006cooldown.%player's uuid%} isn't set:
+        remove 1 of tool from tool
+        give player {006bottle}
+        set {006cooldown.%player's uuid%} to {006cooldownmax}
+      cancel event
+
+
+every 1 second:
+  loop all players:
+    set {006cooldown.%loop-player's uuid%} to {006cooldown.%loop-player's uuid%} - 1
+
+on right click with glass bottle:
+  if tool of player is {006bottle}:
+    cancel event
+
+on consume:
+  if event-item is {006bottle}:
+    apply regeneration 2 without particles to player for 10 seconds
+    apply resistance 1 without particles to player for 15 seconds
