@@ -1,0 +1,59 @@
+options:
+  deathmessage: "&cYou turned into a zombie."
+
+on script enable:
+  add "008" to {scpeditlist::*}
+
+on script disable:
+  remove "008" from {scpeditlist::*}
+
+on tab complete of "/scpedit":
+  if tab arg-1 = "008":
+    set tab completions for position 2 to "setlocation", "maxzombies", "infectiondelay" and "help"
+
+on command "/scpedit 008":
+  if player has permission "scpedit":
+    if arg-2 is "setlocation":
+      set {008location} to location of player
+      send "&8[&cSCP Archive &4| &cSCP-008&8] &7Set location of SCP-008 to your location!"
+    if arg-2 is "maxzombies":
+      set {008maxzombies} to arg-3
+      send "&8[&cSCP Archive &4| &cSCP-008&8] &7Set max amount of zombies (to prevent crashes)."
+    if arg-2 is "infectiondelay":
+      set {008delay} to arg-3
+      send "&8[&cSCP Archive &4| &cSCP-008&8] &7Set the time it takes for an infected to become a zombie."
+
+every 1 second:
+  loop all players in radius 1.5 of {008location}:
+    if loop-player's gamemode isn't creative or spectator:
+      if {008infected.%loop-player's uuid%} is not set:
+        set {008infected.%loop-player's uuid%} to false
+      if {008infected.%loop-player's uuid%} is false:
+        set {008infecttime.%loop-player's uuid%} to 0
+        send "&8[&cSCP-008&8] &7You have been infected!" to loop-player
+        set {008infected.%loop-player's uuid%} to true
+
+every 1 second:
+  loop all players:
+    if {008currentzombies} isn't set:
+      set {008currentzombies} to 0
+    if loop-player's gamemode isn't creative or spectator:
+      if {008infected.%loop-player's uuid%} is true:
+        add 1 to {008infecttime.%loop-player's uuid%}
+        if {008infecttime.%loop-player's uuid%} is greater than {008delay} parsed as number:
+          send {@deathmessage} to loop-player
+          kill loop-player
+          if {008currentzombies} is less than {008maxzombies} parsed as number:
+            spawn a zombie at loop-player
+            set display name of last spawned zombie to "&cSCP-008-2"
+            apply fire resistance 1 without particles to last spawned zombie for 10000000 seconds
+            add 1 to {008currentzombies}
+
+
+on death of player:
+  set {008infected.%victim's uuid%} to false
+  set {008infecttime.%victim's uuid%} to 0
+
+on death of zombie:
+  if name of victim is "&cSCP-008-2":
+    remove 1 from {008currentzombies}

@@ -1,0 +1,104 @@
+# THIS SCP REQUIRES CITIZENS AND SENTINEL
+on tab complete of "/scpedit":
+  if tab arg-1 = "007":
+    set tab completions for position 2 to "setrespawnlocation", "spawn", "health", "consumecooldown" and "help"
+
+on command "/scpedit 007":
+  if player has permission "scpedit":
+    if arg-2 is "setrespawnlocation":
+      make player execute command "/sentinel spawnpoint"
+      send "&8[&cSCP Archive &4| &cSCP-007&8] &7Set respawn point of SCP-007 to your location!"
+    if arg-2 is "spawn":
+      make player execute command "/npc create &cSCP-007"
+      make player execute command "/npc skin --url https://www.minecraftskins.com/uploads/skins/2024/06/10/scp-007-22597763.png?v643"
+      make player execute command "/trait sentinel"
+      make player execute command "/sentinel addtarget players"
+      make player execute command "/sentinel removeignore owner"
+      make player execute command "/sentinel damage 0"
+      make player execute command "/sentinel speed 1"
+      make player execute command "/sentinel health %{007health}%"
+      send "&8[&cSCP Archive &4| &cSCP-007&8] &7Successfully spawned SCP-007!"
+    if arg-2 is "health":
+      set {007health} to arg-3
+      send "&8[&cSCP Archive &4| &cSCP-007&8] &7Set SCP-007's Health to %{007health}%"
+    if arg-2 is "consumecooldown":
+      set {007cooldownmax} to arg-3
+      set {007eatcooldown} to false
+      set {007drinkcooldown} to false
+      send "&8[&cSCP Archive &4| &cSCP-007&8] &7Set consume cooldown for SCP-007 to %{007maxcooldown}% seconds!"
+    if arg-3 is "help":
+      send "&8-----------------------------------------------"
+      send "&7First do &c/scpedit 007 health (number)"
+      send "&7Then do &c/scpedit 007 spawn"
+      send "&7Then do &c/scpedit 007 setrespawnlocation"
+      send "&7Then do &c/scpedit 007 consumecooldown (number)"
+      send "&7If you want to edit something you can always select the npc afterwards and change"
+      send "&8-----------------------------------------------"
+
+on right click with food:
+  if name of clicked entity is "&cSCP-007":
+    if {007eatcooldown} is false:
+      if tool of player is cookie:
+        set {loc} to location at (clicked entity's x-coordinate, clicked entity's y-coordinate + 1.5, clicked entity's z-coordinate) in world "%world of clicked entity%"
+        set {_yaw} to yaw of clicked entity
+        set {_rad} to {_yaw} * {@pi} / 180
+        set {_x-offset} to 0.25 * cos({_rad})
+        set {_z-offset} to 0.25 * sin({_rad})
+        add {_x-offset} to x-coordinate of {loc}
+        add {_z-offset} to z-coordinate of {loc}
+        play 10 cookie item cracking at {loc}
+        play sound "minecraft:entity.player.burp"
+        remove 1 of tool from tool
+        set {007eatcooldown} to true
+        wait "%{007cooldownmax}% seconds" parsed as timespan
+        set {007eatcooldown} to false
+      else:
+        send action bar "&cI want cookies!"
+        play sound "minecraft:entity.villager.hurt"
+    else:
+      send action bar "&cI'm not hungry!"
+      play sound "minecraft:entity.villager.hurt"
+
+
+on right click with water bottle:
+  if name of clicked entity is "&cSCP-007":
+    if {007drinkcooldown} is false:
+      play sound "minecraft:entity.player.burp"
+      remove 1 of tool from tool
+      set {007drinkcooldown} to true
+      wait "%{007cooldownmax}% seconds" parsed as timespan
+      set {007drinkcooldown} to false
+    else:
+      send action bar "&cI'm not thirsty!"
+      play sound "minecraft:entity.villager.hurt"
+
+
+on script enable:
+  add "007" to {scpeditlist::*}
+  set {007eatcooldown} to false
+  set {007drinkcooldown} to false
+
+on script disable:
+  remove "007" from {scpeditlist::*}
+
+on chat:
+  loop all entities in radius 5 of player:
+    if name of loop-entity is "&cSCP-007":
+      if message is "Does it hurt?":
+        wait 1 second
+        send "&8[&cSCP-007&8] &0███████████████&8: &fNo, it doesn't hurt." to player
+      else if message is "How did the planet get there?":
+        wait 1 second
+        send "&8[&cSCP-007&8] &0███████████████&8: &fI just woke up one day, and there it was. I don't have any idea how it got there." to player
+      else if message is "Do you want something?":
+        wait 1 second
+        send "&8[&cSCP-007&8] &0███████████████&8: &fI want a computer with internet connection." to player
+      else if message is "How are you feeling today?":
+        wait 1 second
+        send "&8[&cSCP-007&8] &0███████████████&8: &fI'm feeling great!" to player
+      else if message is "Do you mind living like this?":
+        wait 1 second
+        send "&8[&cSCP-007&8] &0███████████████&8: &fNo, I don't mind living like this." to player
+      else if message is "Do you know what happens when you swallow?":
+        wait 1 second
+        send "&8[&cSCP-007&8] &0███████████████&8: &fI don't, I really got no idea where it goes." to player

@@ -1,0 +1,5 @@
+command /scpedit [<text>] [<text>] <text>:
+  trigger:
+
+on tab complete of "/scpedit":
+  set tab completions for position 1 to {scpeditlist::*}
